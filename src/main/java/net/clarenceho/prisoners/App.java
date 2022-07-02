@@ -15,7 +15,7 @@ public class App implements CommandLineRunner{
   private static final Logger LOG = LoggerFactory
       .getLogger(App.class);
 
-  private static final int NUM_PARALLEL_THREAD = 8;
+  private static final int PARALLELISM = 8;
 
   private static final int NUM_PRISONER = 100;
   private static final int TRIAL_COUNT = 1_000_000;
@@ -26,7 +26,7 @@ public class App implements CommandLineRunner{
 
   @Override
   public void run(String... arg0) throws ExecutionException, InterruptedException {
-    ForkJoinPool customThreadPool = new ForkJoinPool(NUM_PARALLEL_THREAD);
+    ForkJoinPool customThreadPool = new ForkJoinPool(PARALLELISM);
     try {
       int winCount = customThreadPool.submit(() ->
           IntStream.rangeClosed(1, TRIAL_COUNT)
