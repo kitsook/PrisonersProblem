@@ -15,10 +15,10 @@ public class App implements CommandLineRunner{
   private static final Logger LOG = LoggerFactory
       .getLogger(App.class);
 
-  private static final int PARALLELISM = 8;
+  private static final int PARALLELISM = 2;
 
   private static final int NUM_PRISONER = 100;
-  private static final int TRIAL_COUNT = 1_000_000;
+  private static final int TRIAL_COUNT = 10_000_000;
 
   public static void main(String[] args) {
     SpringApplication.run(App.class, args);
@@ -29,12 +29,14 @@ public class App implements CommandLineRunner{
     ForkJoinPool customThreadPool = new ForkJoinPool(PARALLELISM);
     try {
       int winCount = customThreadPool.submit(() ->
-          IntStream.rangeClosed(1, TRIAL_COUNT)
+          IntStream.rangeClosed(1, PARALLELISM)
               .parallel()
-              .map(i -> {
-                PrisonerProblem problem = new PrisonerProblem(NUM_PRISONER);
-                return problem.prisonersWin()? 1 : 0;
-              })
+              .map(i -> IntStream.rangeClosed(1, TRIAL_COUNT / PARALLELISM)
+                  .map(j -> {
+                    PrisonerProblem problem = new PrisonerProblem(NUM_PRISONER);
+                    return problem.prisonersWin()? 1 : 0;
+                  })
+                  .reduce(0, Integer::sum))
               .reduce(0, Integer::sum)
       ).get();
 
