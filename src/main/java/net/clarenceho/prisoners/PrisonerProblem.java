@@ -3,9 +3,6 @@ package net.clarenceho.prisoners;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
 
 public class PrisonerProblem {
   private final int size;
@@ -26,7 +23,6 @@ public class PrisonerProblem {
   public boolean prisonersWin() {
     // for each prisoner
     for (int i = 0; i < size; i++) {
-      Set<Integer> boxesOpened = new HashSet<>();
       int trial = 0;
       int boxToOpen = i;
 
@@ -37,12 +33,6 @@ public class PrisonerProblem {
           return false;
         }
 
-        if (boxesOpened.contains(boxToOpen)) {
-          // completed a loop but haven't found the number yet.
-          // pick a closed box to start another loop
-          boxToOpen = pickNewClosedBox(boxesOpened);
-        }
-        boxesOpened.add(boxToOpen);
         if (boxes.get(boxToOpen) != i) {
           boxToOpen = boxes.get(boxToOpen);
         } else {
@@ -59,19 +49,5 @@ public class PrisonerProblem {
       boxes.add(i);
     }
     Collections.shuffle(boxes);
-  }
-
-  private int pickNewClosedBox(Set<Integer> boxesOpened) {
-    if (boxesOpened.size() >= size) {
-      throw new InvalidParameterException("Opened all boxes");
-    }
-
-    Random rand = new Random();
-    while (true) {
-      int box = rand.nextInt(size);
-      if (! boxesOpened.contains(box)) {
-        return box;
-      }
-    }
   }
 }
