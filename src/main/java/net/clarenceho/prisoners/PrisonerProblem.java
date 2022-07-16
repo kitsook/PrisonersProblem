@@ -3,6 +3,7 @@ package net.clarenceho.prisoners;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 public class PrisonerProblem {
   private final int size;
@@ -45,9 +46,10 @@ public class PrisonerProblem {
 
   private void initBoxes() {
     boxes = new ArrayList<>(this.size);
-    for (int i = 0; i < size; i++) {
-      boxes.add(i);
+    Random rand = new Random();
+    boxes.add(0);
+    for (int i = 1; i < size; i++) {
+      boxes.add(rand.nextInt(boxes.size()), i);
     }
-    Collections.shuffle(boxes);
   }
 }
