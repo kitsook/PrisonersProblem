@@ -1,5 +1,6 @@
 package net.clarenceho.prisoners;
 
+import net.openhft.affinity.AffinityLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -31,12 +32,16 @@ public class App implements CommandLineRunner{
       int winCount = customThreadPool.submit(() ->
           IntStream.rangeClosed(1, PARALLELISM)
               .parallel()
-              .map(i -> IntStream.rangeClosed(1, TRIAL_COUNT / PARALLELISM)
-                  .map(j -> {
-                    PrisonerProblem problem = new PrisonerProblem(NUM_PRISONER);
-                    return problem.prisonersWin()? 1 : 0;
-                  })
-                  .reduce(0, Integer::sum))
+              .map(i -> {
+                try (AffinityLock al = AffinityLock.acquireCore()) {
+                  return IntStream.rangeClosed(1, TRIAL_COUNT / PARALLELISM)
+                      .map(j -> {
+                        PrisonerProblem problem = new PrisonerProblem(NUM_PRISONER);
+                        return problem.prisonersWin()? 1 : 0;
+                      })
+                      .reduce(0, Integer::sum);
+                }
+              })
               .reduce(0, Integer::sum)
       ).get();
 
